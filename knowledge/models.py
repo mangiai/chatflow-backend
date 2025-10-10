@@ -4,11 +4,21 @@ from datetime import datetime
 import uuid
 from core.db import Base
 
+
 class Knowledge(Base):
     __tablename__ = "knowledge"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    business_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    business_id = Column(UUID(as_uuid=True), ForeignKey("business.id"))  # ✅ Fix 
     file_name = Column(String)
     file_url = Column(String, nullable=True)
     content = Column(Text)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class ManualQA(Base):
+    __tablename__ = "manual_qa"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    business_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    question = Column(Text)
+    answer = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
