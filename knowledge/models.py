@@ -17,8 +17,9 @@ class Knowledge(Base):
 
 class ManualQA(Base):
     __tablename__ = "manual_qa"
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    business_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
-    question = Column(Text)
-    answer = Column(Text)
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # ✅ FIXED: add default
+    business_id = Column(UUID(as_uuid=True), ForeignKey("business.id"), nullable=False)
+    question = Column(String, nullable=False)
+    answer = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)

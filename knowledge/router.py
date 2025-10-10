@@ -36,14 +36,33 @@ def add_manual_qa(payload: schemas.ManualQAInput, db: Session = Depends(get_db))
 
 
 @router.post("/train", response_model=schemas.TrainResponse)
-def train_bot(business_id: str, db: Session = Depends(get_db)):
-    return service.train_business_knowledge(db, business_id)
+def train_bot(payload: schemas.TrainRequest, db: Session = Depends(get_db)):
+    return service.train_business_knowledge(db, payload.business_id)
+
 
 
 @router.post("/test")
 def test_agent(payload: schemas.QuestionInput):
-    response = service.answer_query(payload.business_id, payload.query)
-    return {"response": response}
+    result = service.answer_query(payload.business_id, payload.query)
+
+    # Safely extract text from nested dicts
+    if isinstance(result, dict):
+        try:
+            # Extract final answer string no matter how deeply nested
+            answer = (
+                result.get("response", {}).get("result")
+                or result.get("result", {}).get("response", {}).get("result")
+                or result.get("result", {}).get("result", {}).get("response", {}).get("result")
+                or "I'm sorry, I couldn't find an answer."
+            )
+        except Exception:
+            answer = str(result)
+    else:
+        answer = str(result)
+
+    return {"result": answer}
+
+
 
 @router.delete("/upload/{knowledge_id}")
 def delete_knowledge(knowledge_id: str, db: Session = Depends(get_db)):

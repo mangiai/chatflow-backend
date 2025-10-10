@@ -21,3 +21,6 @@ class ManualQAInput(BaseModel):
 
 class TrainResponse(BaseModel):
     message: str
+
+class TrainRequest(BaseModel):
+    business_id: str
