@@ -4,6 +4,8 @@ from core.db import Base, engine
 from auth.router import router as auth_router
 from knowledge.router import router as knowledge_router
 from business.router import router as business_router
+from widget.router import router as widget_router
+
 
 
 
@@ -22,6 +24,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(knowledge_router)
 app.include_router(business_router)
+app.include_router(widget_router)
 
 @app.get("/health")
 def health():
