@@ -1,6 +1,6 @@
 from pydantic import BaseModel
-from typing import Optional
-
+from typing import Optional, List
+from datetime import datetime
 
 class UploadResponse(BaseModel):
     id: str
@@ -24,3 +24,14 @@ class TrainResponse(BaseModel):
 
 class TrainRequest(BaseModel):
     business_id: str
+
+
+class ManualQAResponse(BaseModel):
+    id: str
+    question: str
+    answer: str
+    created_at: datetime
+
+class ManualQAListResponse(BaseModel):
+    message: str
+    data: List[ManualQAResponse]

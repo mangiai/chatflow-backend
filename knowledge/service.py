@@ -146,6 +146,36 @@ def train_business_knowledge(db: Session, business_id: str):
     return {"message": f"✅ Training completed for {len(chunks)} chunks with full context."}
 
 
+
+def get_manual_qa(db: Session, business_id: str):
+    """
+    Fetch all manual Q/A entries for a specific business.
+    """
+    qas = (
+        db.query(ManualQA)
+        .filter(ManualQA.business_id == business_id)
+        .order_by(ManualQA.created_at.desc())
+        .all()
+    )
+
+    if not qas:
+        return {"message": "⚠️ No Q/A entries found for this business.", "data": []}
+
+    results = [
+        {
+            "id": str(qa.id),
+            "question": qa.question,
+            "answer": qa.answer,
+            "created_at": qa.created_at.isoformat(),
+        }
+        for qa in qas
+    ]
+
+    return {"message": f"✅ Found {len(results)} Q/A entries.", "data": results}
+
+
+
+
 # ----------------------------------------------------
 # 5. Query Chatbot
 # ----------------------------------------------------

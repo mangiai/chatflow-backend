@@ -64,6 +64,11 @@ def test_agent(payload: schemas.QuestionInput):
 
 
 
+@router.get("/qa/{business_id}", response_model=schemas.ManualQAListResponse)
+def get_manual_qa(business_id: str, db: Session = Depends(get_db)):
+    return service.get_manual_qa(db, business_id)
+
+
 @router.delete("/upload/{knowledge_id}")
 def delete_knowledge(knowledge_id: str, db: Session = Depends(get_db)):
     return service.delete_knowledge(db, knowledge_id)
