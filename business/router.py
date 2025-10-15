@@ -24,3 +24,11 @@ def get_current_business(db: Session = Depends(get_db),
     if not business:
         raise HTTPException(status_code=404, detail="No business setup found.")
     return business
+
+@router.get("/details", response_model=schemas.BusinessResponse)
+def get_business_details(db: Session = Depends(get_db),
+                         current_user=Depends(get_current_user)):
+    business = service.get_business_by_owner(db, current_user.id)
+    if not business:
+        raise HTTPException(status_code=404, detail="No business setup found.")
+    return business

@@ -13,3 +13,6 @@ def create_business(db: Session, owner_id: str, payload: BusinessCreate):
 
 def get_business_by_owner(db: Session, owner_id: str):
     return db.query(Business).filter(Business.owner_id == owner_id, Business.is_active == True).first()
+
+def get_business_by_id(db: Session, business_id: str):
+    return db.query(Business).filter(Business.id == business_id, Business.is_active == True).first()
