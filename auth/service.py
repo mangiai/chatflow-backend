@@ -1,9 +1,14 @@
-from fastapi import HTTPException, status
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
+from jose import JWTError, jwt
+
+
+from core.db import get_db
 from core.security import hash_password, verify_password, create_access_token
+from core.config import settings
 from auth.models import User
 from auth.schemas import UserCreate, UserLogin
-
 # ===============================
 # SIGNUP & LOGIN
 # ===============================
@@ -49,13 +54,6 @@ def is_token_blacklisted(token: str) -> bool:
 # ===============================
 
 
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
-from sqlalchemy.orm import Session
-from core.db import get_db
-from auth.models import User
-from core.config import settings
 
 # Token extraction from Authorization header
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
