@@ -2,12 +2,21 @@ from fastapi import APIRouter, Depends, Request, HTTPException, status
 from sqlalchemy.orm import Session
 from core.db import get_db
 from core.security import verify_access_token
-from auth import service, schemas
+from auth import service, schemas, models
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/signup", response_model=schemas.Token)
 def signup(payload: schemas.UserCreate, db: Session = Depends(get_db)):
+    # Check if user already exists
+    existing_user = db.query(models.User).filter(models.User.email == payload.email).first()
+    if existing_user:
+        # Instead of 400, send 409 Conflict and pass the detail
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Email already registered"
+        )
+
     user = service.create_user(db, payload)
     token = service.create_access_token({"sub": str(user.id)})
     return {"access_token": token, "token_type": "bearer"}
