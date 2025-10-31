@@ -30,12 +30,12 @@ def oauth_callback(code: str, state: str, db: Session = Depends(get_db)):
         service.upsert_token_from_code(db, business_id, code)
 
         # Redirect to frontend after success
-        frontend_url = f"http://localhost:8080/dashboard/integrations?connected=calendly&business_id={business_id}"
+        frontend_url = f"https://chat.safe-hands.health/dashboard/integrations?connected=calendly&business_id={business_id}"
         return RedirectResponse(url=frontend_url)
 
     except Exception as e:
         # Optional error fallback redirect
-        error_url = f"http://localhost:8080/dashboard/integrations?error={str(e)}"
+        error_url = f"https://chat.safe-hands.health/dashboard/integrations?error={str(e)}"
         return RedirectResponse(url=error_url)
 
 @router.get("/event-types", response_model=EventTypesResponse)
