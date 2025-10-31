@@ -24,7 +24,7 @@ class WidgetSettingsResponse(BaseModel):
     behavior: Optional[Dict]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # -------------------------------
 #  Widget Chat Schemas
@@ -35,3 +35,26 @@ class WidgetQuery(BaseModel):
 
 class WidgetQueryResponse(BaseModel):
     answer: str
+
+
+# -------------------------------
+#  Chat History Schemas
+# -------------------------------
+from datetime import datetime
+
+class WidgetChatMessageResponse(BaseModel):
+    sender: str
+    message: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class WidgetChatSessionResponse(BaseModel):
+    id: UUID
+    visitor_id: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

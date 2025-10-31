@@ -3,11 +3,14 @@ from fastapi.responses import Response, HTMLResponse
 from sqlalchemy.orm import Session
 from core.db import get_db
 from widget import service
+from widget.models import WidgetChatSession, WidgetChatMessage
 from widget.schemas import (
     WidgetSettingsCreate,
     WidgetSettingsResponse,
     WidgetQuery,
     WidgetQueryResponse,
+    WidgetChatSessionResponse,
+    WidgetChatMessageResponse
 )
 from uuid import UUID
 
@@ -170,3 +173,16 @@ def render_chatbox(
     return HTMLResponse(content=html)
 
 
+@router.get("/chats/{business_id}", response_model=list[WidgetChatSessionResponse])
+def get_chats(business_id: UUID, db: Session = Depends(get_db)):
+    return db.query(WidgetChatSession).filter_by(business_id=business_id).all()
+
+
+@router.get("/messages/{session_id}", response_model=list[WidgetChatMessageResponse])
+def get_messages(session_id: UUID, db: Session = Depends(get_db)):
+    return (
+        db.query(WidgetChatMessage)
+        .filter_by(session_id=session_id)
+        .order_by(WidgetChatMessage.created_at)
+        .all()
+    )

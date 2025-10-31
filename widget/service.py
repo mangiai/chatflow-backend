@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
-from widget.models import WidgetSettings
+from widget.models import WidgetSettings, WidgetSettings, WidgetChatSession, WidgetChatMessage
 from widget.schemas import WidgetSettingsCreate, WidgetQueryResponse
 from knowledge.service import answer_query  # ✅ Using your existing logic
 
@@ -37,10 +37,32 @@ def get_widget_settings(db: Session, business_id):
 # -----------------------------------------------------
 def handle_widget_query(db: Session, business_id, query: str) -> WidgetQueryResponse:
     try:
-        # ✅ call existing answer_query() function from knowledge/service.py
-        result = answer_query(str(business_id), query)
+        # Step 1️⃣ - Create or find a chat session
+        visitor_id = "anonymous"  # later you can make this unique per visitor
+        session = (
+            db.query(WidgetChatSession)
+            .filter_by(business_id=business_id, visitor_id=visitor_id)
+            .first()
+        )
+        if not session:
+            session = WidgetChatSession(
+                business_id=business_id,
+                visitor_id=visitor_id
+            )
+            db.add(session)
+            db.commit()
+            db.refresh(session)
 
-        # normalize the output regardless of nested dicts
+        # Step 2️⃣ - Save user's message
+        db.add(WidgetChatMessage(
+            session_id=session.id,
+            sender="user",
+            message=query
+        ))
+        db.commit()
+
+        # Step 3️⃣ - Call LLM as usual
+        result = answer_query(str(business_id), query)
         if isinstance(result, dict):
             answer = (
                 result.get("result", {}).get("response", {}).get("result")
@@ -50,7 +72,17 @@ def handle_widget_query(db: Session, business_id, query: str) -> WidgetQueryResp
         else:
             answer = str(result)
 
+        # Step 4️⃣ - Save bot's reply
+        db.add(WidgetChatMessage(
+            session_id=session.id,
+            sender="bot",
+            message=answer
+        ))
+        db.commit()
+
+        # Step 5️⃣ - Return response to widget
         return WidgetQueryResponse(answer=answer)
 
     except Exception as e:
         return WidgetQueryResponse(answer=f"Error: {str(e)}")
+
